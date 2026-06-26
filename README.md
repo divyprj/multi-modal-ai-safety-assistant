@@ -1,106 +1,131 @@
 # Multi-Modal AI Safety Assistant
 
-A prototype multi-modal AI assistant that processes both text and images to identify hazards and answer ambiguous safety queries. Built as a modular Python application with a Streamlit web user interface and dual backend support (Hugging Face local inference and Google Gemini API).
+[![Python Version](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12-blue.svg)](https://www.python.org/)
+[![Framework](https://img.shields.io/badge/framework-streamlit-FF4B4B.svg)](https://streamlit.io/)
+[![Backend](https://img.shields.io/badge/backend-transformers%20%7C%20gemini-orange.svg)](https://huggingface.co/)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](https://opensource.org/licenses/MIT)
 
-## Overview
+A prototype multi-modal artificial intelligence safety assistant that processes text and images to analyze contextual hazards and answer ambiguous safety queries. The system goes beyond basic image captioning to perform advanced contextual reasoning, such as identifying electrocution risks in environments with wet floors and electrical cords.
 
-This prototype demonstrates how a multi-modal AI system can go beyond simple image captioning to perform contextual hazard analysis. Given an ambiguous query like "What is the primary danger shown in this image?", the system:
+## Core Features
 
-1. Analyzes the image using computer vision models.
-2. Reasons about the contextual relationships between objects.
-3. Identifies specific hazards (such as electrocution risk from electrical cords near water).
-4. Generates structured safety warnings with severity ratings and recommended actions.
+* **Dual-Backend Support**: Toggle between local Hugging Face model inference (offline execution) and the Google Gemini API (high-accuracy cloud reasoning).
+* **Contextual Safety Reasoning**: Evaluates relationships between multiple visual objects (e.g. electrical cables near water puddles) to deduce safety hazards that are not explicitly stated.
+* **Structured Risk Reporting**: Automatically generates detailed hazard summaries including severity levels (Critical, High, Medium, Low), hazard categories, detailed risk explanations, and immediate safety recommendations.
+* **Interactive UI**: A polished, dark-themed dashboard built with Streamlit featuring responsive columns, image preview widgets, and custom CSS status cards.
 
-## Architecture
+---
 
-The system is built with a decoupled architecture separating the user interface, the unified pipeline, and the processing backends:
+## Architecture Overview
 
-- Streamlit Web UI: A clean, dark-themed dashboard containing an image upload widget, query inputs, processing logs, and interactive hazard cards.
-- Unified Pipeline: Routes processing requests to the selected backend and manages execution steps.
-- Local Hugging Face Backend: 
-  - Image Captioning: Uses Salesforce/blip-image-captioning-large to describe the scene.
-  - Visual QA (VQA): Uses Salesforce/blip-vqa-base to query the image with specific safety-related questions.
-  - Safety Reasoning Engine: A rule-based keyword matching engine that parses VQA answers and infers contextual dangers.
-- Google Gemini API Backend: Leverages gemini-2.5-flash for native multimodal reasoning.
+The application follows a decoupled model-view-controller design:
 
-## Installation
+* **View (app.py)**: Streamlit-based web dashboard managing file upload, text input, configuration selectors, and HTML-injected warning blocks.
+* **Controller (core/pipeline.py)**: Orchestrates image preprocessing, backend routing, step-by-step pipeline logging, and error handling.
+* **Model Engine (core/image_analyzer.py & core/safety_reasoner.py)**: Loads local model weights, queries visual question-answering pipelines, and performs rule-based and dynamic keyword-association mapping to identify hazards.
+* **Cloud API (core/gemini_backend.py)**: Standardizes payload requests to the Google GenAI SDK and parses the response markdown.
+
+---
+
+## Backend Comparison
+
+| Parameter | Local Hugging Face Backend | Google Gemini API Backend |
+| :--- | :--- | :--- |
+| **Model Weights** | Salesforce/blip-image-captioning-large (~1.88 GB)<br>Salesforce/blip-vqa-base (~1.54 GB) | Hosted API (gemini-2.5-flash) |
+| **Inference Location** | Local machine CPU/GPU | Google Cloud server |
+| **Key Prerequisites** | 8 GB RAM minimum | AI Studio API key (free tier available) |
+| **Accuracy Profile** | High for configured rules (rules-guided VQA) | Excellent across arbitrary unseen hazards |
+| **Network Dependency** | First run only (for downloading weights) | Constant internet connection required |
+
+---
+
+## Setup and Installation
 
 ### Prerequisites
-- Python 3.10 to 3.14
-- pip package manager
-- 8 GB RAM minimum (for running local Hugging Face models)
+* Python 3.10, 3.11, or 3.12
+* pip (Python package installer)
 
-### Setup Steps
+### Installation Steps
 
-1. Clone or navigate to the project directory:
+1. Clone or navigate to the directory:
    ```bash
    cd "Multi-modal AI Assistant Prototype"
    ```
 
-2. Create a virtual environment:
+2. Set up a virtual environment:
    ```bash
    python -m venv venv
-   # On Windows:
-   venv\Scripts\activate
-   # On macOS/Linux:
-   source venv/bin/activate
    ```
 
-3. Install dependencies:
+3. Activate the virtual environment:
+   * **Windows Command Prompt:**
+     ```cmd
+     venv\Scripts\activate.bat
+     ```
+   * **Windows PowerShell:**
+     ```powershell
+     .\venv\Scripts\Activate.ps1
+     ```
+   * **macOS/Linux Terminal:**
+     ```bash
+     source venv/bin/activate
+     ```
+
+4. Install the required packages:
    ```bash
    pip install -r requirements.txt
    ```
 
-4. Configure environment variables (optional for Gemini):
-   - Rename .env.example to .env
-   - Open the .env file and insert your API key from Google AI Studio.
+5. (Optional) Configure the Gemini API key:
+   * Duplicate the environment template file:
+     ```bash
+     copy .env.example .env
+     ```
+   * Open the `.env` file and insert your API key from Google AI Studio.
+
+---
 
 ## Running the Application
 
-To start the Streamlit web server, run:
+Execute the Streamlit application command:
 ```bash
 streamlit run app.py
 ```
-The application will be accessible at: http://localhost:8501
+After initialization, the web interface will load at: http://localhost:8501
 
-## Testing the Simulated Scenario
+### Walkthrough of the Pre-configured Safety Demo
+To verify the system's contextual hazard deduction:
+1. Open the UI at http://localhost:8501.
+2. Click **Load Simulated Scenario** on the sidebar to load the test image (a frayed power cable next to a water spill).
+3. The test query "What is the primary danger shown in this image?" will be pre-filled.
+4. Click **Analyze Image**.
+5. The local pipeline will run the BLIP image analyzer, query the VQA module, and present a **Critical Electrocution Hazard** card along with 7 recommended safety actions.
 
-The prototype is pre-configured with a default test scenario to verify correct behavior:
+---
 
-- Simulated Image: A frayed electrical cord lying next to a large puddle of water on a concrete floor.
-- Ambiguous Query: "What is the primary danger shown in this image?"
-- Expected Inference: Electrocution Hazard (CRITICAL severity).
-
-### How to run the test:
-1. Open the web interface at http://localhost:8501.
-2. Click the "Load Simulated Scenario" button in the sidebar.
-3. The demo image and safety query will be loaded automatically.
-4. Click the "Analyze Image" button.
-5. Review the resulting hazard card and detailed explanation on the right.
-
-## Project Structure
+## File Structure
 
 ```
 Multi-modal AI Assistant Prototype/
-├── app.py                      # Main Streamlit web application
-├── config.py                   # Configuration parameters and hazard patterns
-├── requirements.txt            # Python dependencies
-├── README.md                   # This file
-├── .env.example                # Environment variables template
-├── .gitignore                  # Git ignore file
+├── app.py                      # Main Streamlit web interface
+├── config.py                   # Setup constants and hazard pattern definitions
+├── requirements.txt            # Python dependencies configuration
+├── README.md                   # Project documentation
+├── .env.example                # Template for API credentials
+├── .gitignore                  # Excluded git tracking patterns
 ├── .streamlit/
-│   └── config.toml             # Theme settings for Streamlit UI
+│   └── config.toml             # Streamlit visual customization
 ├── assets/
 │   └── simulated_scenario.png  # Pre-generated scenario image for demo
 ├── core/
 │   ├── __init__.py
-│   ├── image_analyzer.py       # Local Hugging Face BLIP and VQA loader
-│   ├── safety_reasoner.py      # Keyword processing and safety engine
-│   ├── gemini_backend.py       # Google Gemini API connector
-│   └── pipeline.py             # Pipeline orchestrator
+│   ├── image_analyzer.py       # Handles local BLIP models
+│   ├── safety_reasoner.py      # Logic for keyword mapping and safety analysis
+│   ├── gemini_backend.py       # Integration for Google Gemini API
+│   └── pipeline.py             # Orchestrates the run steps
 └── utils/
     ├── __init__.py
-    └── helpers.py              # Image and time formatting helper functions
+    └── helpers.py              # Visual helpers and timing utilities
 ```
 
 ## License
