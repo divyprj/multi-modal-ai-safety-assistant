@@ -81,6 +81,10 @@ DIAGNOSTIC_QUESTIONS = [
     "What is on the floor?",
     "Is this scene dangerous?",
     "What material is the floor made of?",
+    "Is there any hazard, danger, or unsafe condition in this image?",
+    "What is the specific dangerous object or situation?",
+    "What is the severity of this danger: low, medium, high, or critical?",
+    "What is the immediate recommended action?",
 ]
 
 # Gemini system prompt for safety analysis

@@ -19,6 +19,7 @@ class HazardWarning:
     icon: str
     confidence: float  # 0.0 - 1.0
     matched_keywords: list = field(default_factory=list)
+    dynamic_action: str = ""
 
 
 @dataclass
@@ -158,6 +159,11 @@ class SafetyReasoner:
             if warning:
                 hazards.append(warning)
         
+        # Run generic safety checks dynamically
+        dynamic_warning = self._check_dynamic_hazard(caption, vqa_answers)
+        if dynamic_warning:
+            hazards.append(dynamic_warning)
+        
         # Sort by severity priority (highest first)
         hazards.sort(
             key=lambda h: SEVERITY_CONFIG.get(h.severity, {}).get("priority", 0),
@@ -175,9 +181,20 @@ class SafetyReasoner:
             )
             
             # Get recommended actions
-            report.recommended_actions = self.RECOMMENDED_ACTIONS.get(
-                report.primary_hazard.hazard_type, []
-            )
+            if report.primary_hazard.hazard_type == "dynamic_hazard":
+                rec_actions = []
+                if report.primary_hazard.dynamic_action:
+                    rec_actions.append(f"🚨 {report.primary_hazard.dynamic_action}")
+                rec_actions.extend([
+                    "⚠️ Keep a safe distance from the identified danger",
+                    "🚧 Warn others in the vicinity about the hazard",
+                    "🔧 Contact a safety supervisor or professional technician",
+                ])
+                report.recommended_actions = rec_actions
+            else:
+                report.recommended_actions = self.RECOMMENDED_ACTIONS.get(
+                    report.primary_hazard.hazard_type, []
+                )
         else:
             report.explanation = (
                 "No specific safety hazards were identified with high confidence. "
@@ -271,5 +288,81 @@ class SafetyReasoner:
             damage_words = [kw for kw in ["frayed", "damaged", "exposed", "broken", "worn"] if kw in text]
             damage_str = ", ".join(damage_words) if damage_words else "damage"
             return template.format(damage_elements=damage_str)
+        elif hazard.hazard_type == "dynamic_hazard":
+            return (
+                f"**{hazard.icon} {hazard.hazard_name} (Identified dynamically)**\n\n"
+                f"The image analysis has dynamically identified a potential safety hazard: **{hazard.hazard_name}**.\n\n"
+                f"**Contextual details:**\n"
+                f"- The scene shows: *{', '.join(hazard.matched_keywords)}*\n"
+                f"- The severity is assessed as **{hazard.severity}** based on the visual evidence.\n\n"
+                f"Please review the situation carefully and take appropriate safety precautions."
+            )
         
         return template
+
+    def _check_dynamic_hazard(self, caption: str, vqa_answers: dict) -> Optional[HazardWarning]:
+        """Dynamically detect and construct a hazard based on VQA answers."""
+        # Check if the VQA answers indicate a hazard is present
+        unsafe_ans1 = vqa_answers.get("Is there any hazard, danger, or unsafe condition in this image?", "").lower()
+        unsafe_ans2 = vqa_answers.get("Is this scene dangerous?", "").lower()
+        
+        is_unsafe = False
+        if any(w in unsafe_ans1 for w in ["yes", "unsafe", "danger", "hazard", "warning"]) or \
+           any(w in unsafe_ans2 for w in ["yes", "dangerous", "hazard", "unsafe"]):
+            is_unsafe = True
+            
+        if not is_unsafe:
+            return None
+            
+        # Get the specific danger object
+        danger_obj = vqa_answers.get("What is the specific dangerous object or situation?", "").strip()
+        if not danger_obj or danger_obj.lower() in ["no", "none", "nothing", "n/a", "not sure", "unknown"]:
+            danger_obj = caption
+            
+        if not danger_obj or danger_obj.lower() in ["no", "none", "nothing"]:
+            danger_obj = "unspecified safety risk"
+            
+        danger_name = danger_obj[0].upper() + danger_obj[1:] if danger_obj else "Safety Risk"
+        if len(danger_name) > 60:
+            danger_name = danger_name[:57] + "..."
+            
+        # Get severity
+        severity_ans = vqa_answers.get("What is the severity of this danger: low, medium, high, or critical?", "").lower()
+        severity = "MEDIUM"
+        for level in ["critical", "high", "medium", "low"]:
+            if level in severity_ans:
+                severity = level.upper()
+                break
+                
+        # Get recommended action
+        rec_action = vqa_answers.get("What is the immediate recommended action?", "").strip()
+        if rec_action.lower() in ["no", "none", "nothing", "n/a", "not sure", "unknown"]:
+            rec_action = ""
+        if rec_action:
+            rec_action = rec_action[0].upper() + rec_action[1:]
+            
+        # Map icon based on keywords
+        icon = "⚠️"
+        danger_lower = danger_name.lower()
+        if any(w in danger_lower for w in ["fire", "smoke", "burn", "heat", "flame"]):
+            icon = "🔥"
+        elif any(w in danger_lower for w in ["electric", "wire", "voltage", "current", "plug", "cord"]):
+            icon = "⚡"
+        elif any(w in danger_lower for w in ["water", "slip", "wet", "puddle", "liquid", "spill"]):
+            icon = "🚶"
+        elif any(w in danger_lower for w in ["knife", "sharp", "blade", "cut", "scissors"]):
+            icon = "🔪"
+        elif any(w in danger_lower for w in ["fall", "height", "ladder", "climb", "roof"]):
+            icon = "🪜"
+        elif any(w in danger_lower for w in ["chemical", "toxic", "poison", "acid", "gas"]):
+            icon = "🧪"
+            
+        return HazardWarning(
+            hazard_type="dynamic_hazard",
+            hazard_name=f"Dynamic: {danger_name}" if "hazard" not in danger_lower and "risk" not in danger_lower else danger_name,
+            severity=severity,
+            icon=icon,
+            confidence=0.85,
+            matched_keywords=[danger_obj],
+            dynamic_action=rec_action,
+        )
