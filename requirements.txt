@@ -1,7 +1,18 @@
+# Web Application Framework
 streamlit>=1.30.0,<=1.58.0
+
+# Machine Learning & NLP Pipelines
 transformers>=4.36.0,<6.0.0
+
+# Deep Learning Foundations (PyTorch)
 torch>=2.1.0,<3.0.0
 torchvision>=0.16.0,<1.0.0
+
+# Image Processing Library
 Pillow>=10.0.0,<13.0.0
-google-genai>=2.0.0,<3.0.0
+
+# Google Gemini API SDK Integration
+google-genai>=2.10.0,<3.0.0
+
+# Configuration & Environment Variables loader
 python-dotenv>=1.0.0,<2.0.0
