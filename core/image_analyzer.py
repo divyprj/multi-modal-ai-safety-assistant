@@ -7,7 +7,6 @@ capabilities using the Salesforce BLIP models.
 import time
 from dataclasses import dataclass, field
 from PIL import Image
-from transformers import BlipProcessor, BlipForConditionalGeneration, BlipForQuestionAnswering
 from config import BLIP_CAPTION_MODEL, BLIP_VQA_MODEL, DIAGNOSTIC_QUESTIONS
 
 
@@ -36,6 +35,7 @@ class ImageAnalyzer:
     def _load_caption_model(self):
         """Lazily load the BLIP captioning model."""
         if self._caption_processor is None:
+            from transformers import BlipProcessor, BlipForConditionalGeneration
             self._caption_processor = BlipProcessor.from_pretrained(BLIP_CAPTION_MODEL)
             self._caption_model = BlipForConditionalGeneration.from_pretrained(BLIP_CAPTION_MODEL)
             self._caption_model.eval()
@@ -43,6 +43,7 @@ class ImageAnalyzer:
     def _load_vqa_model(self):
         """Lazily load the BLIP VQA model."""
         if self._vqa_processor is None:
+            from transformers import BlipProcessor, BlipForQuestionAnswering
             self._vqa_processor = BlipProcessor.from_pretrained(BLIP_VQA_MODEL)
             self._vqa_model = BlipForQuestionAnswering.from_pretrained(BLIP_VQA_MODEL)
             self._vqa_model.eval()

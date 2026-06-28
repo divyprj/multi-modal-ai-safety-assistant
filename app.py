@@ -23,7 +23,6 @@ from config import (
     SIMULATED_SCENARIO,
     SEVERITY_CONFIG,
 )
-from core.pipeline import MultiModalPipeline, AnalysisResult
 from utils.helpers import resize_image, format_time
 
 # ── Page Configuration ──────────────────────────────────────────────────────
@@ -249,6 +248,7 @@ st.markdown("""
 # ── Session State Initialization ────────────────────────────────────────────
 
 if "pipeline" not in st.session_state:
+    from core.pipeline import MultiModalPipeline
     st.session_state.pipeline = MultiModalPipeline()
 if "analysis_result" not in st.session_state:
     st.session_state.analysis_result = None
