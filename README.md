@@ -9,6 +9,14 @@ A prototype multi-modal artificial intelligence safety assistant that processes 
 
 ---
 
+## 🎥 Demo Video
+
+[![YouTube](https://img.shields.io/badge/YouTube-Watch%20Demo%20Video-red?style=for-the-badge&logo=youtube)](https://youtu.be/6KHJ36AFkE4)
+
+Watch the complete walkthrough demonstrating the Streamlit dashboard UI, local Hugging Face BLIP and VQA pipelines, the custom safety reasoning engine, and the Google Gemini API integration.
+
+---
+
 ## 🎯 Overview
 
 This prototype demonstrates how a multi-modal AI system can go beyond simple image captioning to perform **contextual hazard analysis**. Given an ambiguous query like *"What is the primary danger shown in this image?"*, the system:
@@ -95,14 +103,6 @@ The application follows a decoupled model-view-controller design:
      copy .env.example .env
      ```
    * Open the `.env` file and insert your API key from Google AI Studio.
-
----
-
-## 🎥 Demo Video
-
-[![YouTube](https://img.shields.io/badge/YouTube-Watch%20Demo%20Video-red?style=for-the-badge&logo=youtube)](https://youtu.be/6KHJ36AFkE4)
-
-Watch the complete walkthrough demonstrating the Streamlit dashboard UI, local Hugging Face BLIP and VQA pipelines, the custom safety reasoning engine, and the Google Gemini API integration.
 
 ---
 
