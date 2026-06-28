@@ -293,11 +293,14 @@ with st.sidebar:
             type="password",
             help="Get a free key at https://aistudio.google.com/",
         )
-        if not gemini_api_key:
+        if gemini_api_key:
+            masked_key = gemini_api_key[:4] + "••••••••" + gemini_api_key[-4:]
+            st.success(f"✅ API key loaded ({masked_key})")
+        else:
             st.warning("⚠️ API key required for Gemini backend")
-        st.markdown(
-            "[Get free API key →](https://aistudio.google.com/)",
-        )
+            st.markdown(
+                "[Get free API key →](https://aistudio.google.com/)",
+            )
 
     st.markdown("---")
 
