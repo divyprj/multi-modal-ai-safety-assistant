@@ -98,6 +98,13 @@ The application follows a decoupled model-view-controller design:
 
 ---
 
+## 🎥 Explanation and Demo Video
+
+Watch the detailed walkthrough of the prototype, showing setup, architecture, and live hazard detection:
+👉 **[Watch the Demo Video on YouTube](https://youtu.be/6KHJ36AFkE4)**
+
+---
+
 ## 🎮 Running the Application
 
 Execute the Streamlit application command:
