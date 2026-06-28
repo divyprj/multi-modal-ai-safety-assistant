@@ -275,7 +275,6 @@ st.markdown("""
 with st.sidebar:
     st.markdown("## ⚙️ Configuration")
 
-    st.markdown('<div class="sidebar-section">', unsafe_allow_html=True)
     st.markdown("### 🔧 Backend Selection")
     backend = st.radio(
         "Choose analysis backend:",
@@ -284,12 +283,10 @@ with st.sidebar:
         help="Local runs BLIP models on your machine. Gemini requires a free API key.",
     )
     backend_key = "huggingface" if "Local" in backend else "gemini"
-    st.markdown('</div>', unsafe_allow_html=True)
 
     # Gemini API key input
     gemini_api_key = None
     if backend_key == "gemini":
-        st.markdown('<div class="sidebar-section">', unsafe_allow_html=True)
         st.markdown("### 🔑 Gemini API Key")
         gemini_api_key = st.text_input(
             "Enter your API key:",
@@ -300,14 +297,11 @@ with st.sidebar:
             st.warning("⚠️ API key required for Gemini backend")
         st.markdown(
             "[Get free API key →](https://aistudio.google.com/)",
-            unsafe_allow_html=True,
         )
-        st.markdown('</div>', unsafe_allow_html=True)
 
     st.markdown("---")
 
     # Simulated scenario loader
-    st.markdown('<div class="sidebar-section">', unsafe_allow_html=True)
     st.markdown("### 🎯 Demo Scenario")
     st.caption(
         "Load the pre-configured safety scenario to test the system's "
@@ -322,12 +316,10 @@ with st.sidebar:
             st.rerun()
         else:
             st.error("Simulated scenario image not found in assets/")
-    st.markdown('</div>', unsafe_allow_html=True)
 
     st.markdown("---")
 
     # Architecture info
-    st.markdown('<div class="sidebar-section">', unsafe_allow_html=True)
     st.markdown("### 🏗️ Architecture")
     if backend_key == "huggingface":
         st.markdown("""
@@ -344,7 +336,6 @@ with st.sidebar:
         2. 🤖 Gemini multimodal analysis
         3. 📊 Structured hazard report
         """)
-    st.markdown('</div>', unsafe_allow_html=True)
 
 
 # ── Main Content ────────────────────────────────────────────────────────────
