@@ -212,11 +212,21 @@ class SafetyReasoner:
         parts = [caption]
         for q, a in vqa_answers.items():
             parts.append(a)
+            # Map yes/no VQA answers back to their question context to capture keywords
+            a_lower = a.lower()
+            if any(w in a_lower for w in ["yes", "there is", "visible", "true", "present"]):
+                q_lower = q.lower()
+                if "water" in q_lower or "liquid" in q_lower:
+                    parts.append("water")
+                if "electrical" in q_lower or "cord" in q_lower or "equipment" in q_lower:
+                    parts.append("electrical")
+                if "damage" in q_lower or "fraying" in q_lower:
+                    parts.append("damaged")
+                if "floor" in q_lower or "ground" in q_lower:
+                    parts.append("floor")
+                if "hazard" in q_lower or "danger" in q_lower or "unsafe" in q_lower:
+                    parts.append("danger")
         if raw_texts:
-            # Filter out any strings that contain the diagnostic questions
-            # or just add the items if they are clean answers.
-            # To be safe, if we change raw_texts in image_analyzer.py to not contain questions,
-            # we can just add them here.
             parts.extend(raw_texts)
         return " ".join(parts)
 
