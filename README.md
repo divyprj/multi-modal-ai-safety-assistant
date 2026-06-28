@@ -98,10 +98,11 @@ The application follows a decoupled model-view-controller design:
 
 ---
 
-## 🎥 Explanation and Demo Video
+## 🎥 Demo Video
 
-Watch the detailed walkthrough of the prototype, showing setup, architecture, and live hazard detection:
-👉 **[Watch the Demo Video on YouTube](https://youtu.be/6KHJ36AFkE4)**
+[![YouTube](https://img.shields.io/badge/YouTube-Watch%20Demo%20Video-red?style=for-the-badge&logo=youtube)](https://youtu.be/6KHJ36AFkE4)
+
+Watch the complete walkthrough demonstrating the Streamlit dashboard UI, local Hugging Face BLIP and VQA pipelines, the custom safety reasoning engine, and the Google Gemini API integration.
 
 ---
 
